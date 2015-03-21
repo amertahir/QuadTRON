@@ -1,0 +1,3 @@
+[submodule "raspberry-pi/droneapi-python"]
+	path = raspberry-pi/droneapi-python
+	url = https://github.com/amertahir/droneapi-python.git
