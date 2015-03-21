@@ -1,0 +1,246 @@
+OS Install
+----------
+
+1) Install firmware using MATLAB Simulink Support Package for Raspberry Pi.
+2) After successful installation, run raspi-config to do the following:-
+
+- Set password to "pi" or whatever you like.
+- Set Hostname to whatever you like, I did "rpi2".
+- Do "Expand Filesystem" and reboot. After reboot run raspi-config again.
+- Enable camera.
+- Set localization to en_US (UTF8) and timezone to US Eastern.
+- Set Boot to console.
+- In Advanced Options, make sure SPI and I2C are set to "Yes".
+- In Advanced Options, select Serial and disable serial login.
+
+3) After all above is configured, make sure you have internet connectivity on the Pi either via LAN or Wifi. Reboot to proceed.
+
+
+VNC Server
+----------
+
+MATLAB's firmware (modified Raspbian) already has x11vnc server installed but it doesn't run at startup. To do that, do the following:
+1) Make a directory named ".vnc" in /home/pi.
+2) Run Internet->X11VNC Server from the GUI (assuming you started Desktop environment by running startx on console already). Make sure port says 5900 and then click Ok. It would give you options screen then, select "Allow connections" and click OK (or whatever there is instead of OK).
+3) Open LXTerminal, do the following:
+
+- cd /home/pi/.config
+- mkdir autostart
+- nano x11vnc.desktop
+- Paste the following contents into it:-
+
+[Desktop Entry]
+Encoding=UTF-8
+Type=Application
+Name=X11VNC
+Comment=
+Exec=x11vnc -forever -bg -nopw -display :0 -ultrafilexfer
+StartupNotify=false
+Terminal=false
+Hidden=false
+
+- Save and Exit
+- sudo nano /boot/config.txt
+- Uncomment:
+
+#framebuffer_width=1280
+#framebuffer_height=720
+
+- Uncomment:
+
+#hdmi_force_hotplug=1
+
+- Save and Exit
+
+3) Reboot.
+
+
+Update Packages and Distro
+--------------------------
+
+1) sudo apt-get update
+2) sudo apt-get upgrade
+3) sudo rpi-update
+4) sudo apt-get install screen minicom
+
+
+Backup [OPTIONAL]
+-----------------
+
+1) Shutdown and take out microSD card, put it in a SD adapter and plug it into your computer.
+2) Use Win32DiskImager to take a back up of the entire SD card, google for tutorial.
+3) The resulting .img file is huge (size of the card), compress it with 7-Zip using 7z compression, works best on Windows (10-15% compression ratio).
+
+
+OpenCV 2.4.10
+-------------
+
+1) SSH into Raspberry Pi, do "screen -t opencv"
+2) Download OpenCV-2.4.10 by doing: wget -O opencv-2.4.10.zip http://downloads.sourceforge.net/project/opencvlibrary/opencv-unix/2.4.10/opencv-2.4.10.zip?r=&ts=1426771399&use_mirror=softlayer-dal
+3) Install dependencies:
+
+- sudo apt-get update
+- sudo apt-get upgrade
+- sudo apt-get -y install build-essential cmake cmake-curses-gui pkg-config libpng12-0 libpng12-dev libpng++-dev libpng3 libpnglite-dev zlib1g-dbg zlib1g zlib1g-dev pngtools libtiff4-dev libtiff4 libtiffxx0c2 libtiff-tools libeigen3-dev libjasper-dev libatlas-base-dev gfortran
+- sudo apt-get -y install libjpeg8 libjpeg8-dev libjpeg8-dbg libjpeg-progs ffmpeg libavcodec-dev libavcodec53 libavformat53 libavformat-dev libgstreamer0.10-0-dbg libgstreamer0.10-0 libgstreamer0.10-dev libxine1-ffmpeg libxine-dev libxine1-bin libunicap2 libunicap2-dev swig libv4l-0 libv4l-dev python-numpy libpython2.7 python-dev python2.7-dev libgtk2.0-dev libswscale-dev
+- sudo apt-get -y install ant default-jdk
+
+4) unzip opencv-2.4.10.zip
+5) cd opencv-2.4.10.zip
+6) mkdir release
+7) cd release
+8) ccmake ../
+9) Press 'c' to configure. Once done toggle the options you want. This were mine:
+
+ANT_EXECUTABLE                  */usr/bin/ant                    
+BUILD_DOCS                      *ON                              
+BUILD_EXAMPLES                  *ON                              
+BUILD_JASPER                    *ON                              
+BUILD_JPEG                      *ON                              
+BUILD_OPENEXR                   *ON                              
+BUILD_PACKAGE                   *ON                              
+BUILD_PERF_TESTS                *ON                              
+BUILD_PNG                       *ON                              
+BUILD_SHARED_LIBS               *ON                              
+BUILD_TBB                       *ON                              
+BUILD_TESTS                     *ON                              
+BUILD_TIFF                      *ON                              
+BUILD_WITH_DEBUG_INFO           *ON                              
+BUILD_ZLIB                      *ON                              
+BUILD_opencv_apps               *ON                              
+BUILD_opencv_calib3d            *ON                              
+BUILD_opencv_contrib            *ON                              
+BUILD_opencv_core               *ON                              
+BUILD_opencv_features2d         *ON                              
+BUILD_opencv_flann              *ON                              
+BUILD_opencv_gpu                *ON                              
+BUILD_opencv_highgui            *ON                              
+BUILD_opencv_imgproc            *ON                              
+BUILD_opencv_java               *ON                              
+BUILD_opencv_legacy             *ON                              
+BUILD_opencv_ml                 *ON                              
+BUILD_opencv_nonfree            *ON                              
+BUILD_opencv_objdetect          *ON                              
+BUILD_opencv_ocl                *ON                              
+BUILD_opencv_photo              *ON                              
+BUILD_opencv_python             *ON                              
+BUILD_opencv_stitching          *ON                              
+BUILD_opencv_superres           *ON                              
+BUILD_opencv_ts                 *ON                              
+BUILD_opencv_video              *ON                              
+BUILD_opencv_videostab          *ON                              
+BUILD_opencv_world              *OFF                             
+BZIP2_LIBRARIES                 *BZIP2_LIBRARIES-NOTFOUND        
+CLAMDBLAS_INCLUDE_DIR           *CLAMDBLAS_INCLUDE_DIR-NOTFOUND  
+CLAMDBLAS_ROOT_DIR              *CLAMDBLAS_ROOT_DIR-NOTFOUND     
+CLAMDFFT_INCLUDE_DIR            *CLAMDFFT_INCLUDE_DIR-NOTFOUND   
+CLAMDFFT_ROOT_DIR               *CLAMDFFT_ROOT_DIR-NOTFOUND      
+CMAKE_BUILD_TYPE                *Release                                        
+CMAKE_CONFIGURATION_TYPES       *Debug;Release                                  
+CMAKE_INSTALL_PREFIX            */usr/local                                     
+CMAKE_VERBOSE                   *OFF                                            
+CUDA_BUILD_CUBIN                *OFF                                            
+CUDA_BUILD_EMULATION            *OFF                                            
+CUDA_HOST_COMPILER              */usr/bin/gcc                                   
+CUDA_SDK_ROOT_DIR               *CUDA_SDK_ROOT_DIR-NOTFOUND                     
+CUDA_SEPARABLE_COMPILATION      *OFF                                            
+CUDA_TOOLKIT_ROOT_DIR           *CUDA_TOOLKIT_ROOT_DIR-NOTFOUND                 
+CUDA_VERBOSE_BUILD              *OFF                                            
+EIGEN_INCLUDE_PATH              */usr/include/eigen3                            
+ENABLE_COVERAGE                 *OFF                                            
+ENABLE_NEON                     *ON                                             
+ENABLE_NOISY_WARNINGS           *OFF                                            
+ENABLE_OMIT_FRAME_POINTER       *ON                                             
+ENABLE_PRECOMPILED_HEADERS      *ON                                             
+ENABLE_PROFILING                *OFF                                            
+ENABLE_SOLUTION_FOLDERS         *OFF                                            
+ENABLE_VFPV3                    *ON                                             
+EXECUTABLE_OUTPUT_PATH          */home/pi/opencv-2.4.10/release/bin             
+GIGEAPI_INCLUDE_PATH            *GIGEAPI_INCLUDE_PATH-NOTFOUND                  
+GIGEAPI_LIBRARIES               *GIGEAPI_LIBRARIES-NOTFOUND                     
+INSTALL_CREATE_DISTRIB          *OFF                                            
+INSTALL_C_EXAMPLES              *ON                                             
+INSTALL_PYTHON_EXAMPLES         *ON                                             
+INSTALL_TESTS                   *ON                                             
+INSTALL_TO_MANGLED_PATHS        *OFF                                            
+OPENCV_CONFIG_FILE_INCLUDE_DIR  */home/pi/opencv-2.4.10/release                 
+OPENCV_EXTRA_MODULES_PATH       *                                               
+OPENCV_WARNINGS_ARE_ERRORS      *OFF                                            
+OPENEXR_INCLUDE_PATH            *OPENEXR_INCLUDE_PATH-NOTFOUND                  
+PVAPI_INCLUDE_PATH              *PVAPI_INCLUDE_PATH-NOTFOUND                    
+PYTHON_NUMPY_INCLUDE_DIR        */usr/lib/pymodules/python2.7/numpy/core/include
+PYTHON_PACKAGES_PATH            *lib/python2.7/dist-packages                    
+SPHINX_BUILD                    *SPHINX_BUILD-NOTFOUND                          
+WITH_1394                       *OFF                                            
+WITH_CUBLAS                     *OFF                                            
+WITH_CUDA                       *OFF                                            
+WITH_CUFFT                      *OFF                                            
+WITH_EIGEN                      *ON                                             
+WITH_FFMPEG                     *ON                                             
+WITH_GIGEAPI                    *OFF                                            
+WITH_GSTREAMER                  *ON 
+WITH_GSTREAMER_0_10             *ON 
+WITH_GTK                        *ON 
+WITH_JASPER                     *ON 
+WITH_JPEG                       *ON 
+WITH_LIBV4L                     *ON 
+WITH_NVCUVID                    *OFF
+WITH_OPENCL                     *ON 
+WITH_OPENCLAMDBLAS              *ON 
+WITH_OPENCLAMDFFT               *ON 
+WITH_OPENEXR                    *ON 
+WITH_OPENGL                     *ON 
+WITH_OPENMP                     *OFF
+WITH_OPENNI                     *OFF
+WITH_PNG                        *ON 
+WITH_PVAPI                      *ON 
+WITH_QT                         *OFF
+WITH_TBB                        *ON 
+WITH_TIFF                       *ON 
+WITH_UNICAP                     *ON 
+WITH_V4L                        *ON 
+WITH_VTK                        *OFF
+WITH_XIMEA                      *OFF
+WITH_XINE                       *ON 
+
+10) Press 'c' again to configure with your new settings. You will get the following error:
+
+ CMake Error at 3rdparty/tbb/CMakeLists.txt:116 (message):
+   Failed to download TBB sources:
+   http://threadingbuildingblocks.org/sites/default/files/software_releases/source/tbb41_20130116oss_src.tgz
+
+11) Press 'e' and then 'q' to exit ccmake.
+12) Download 'tbb41_20130116oss_src.tgz' manually by issuing the following command:
+
+wget --no-check-certificate -O ../3rdparty/tbb/tbb41_20130116oss_src.tgz https://threadingbuildingblocks.org/sites/default/files/software_releases/source/tbb41_20130116oss_src.tgz
+
+13) ccmake ../
+14) Press 'g' to generate the Makefile.
+15) And finally, build. This will take a long time (about 4-5 hours!). Issue the following commands:
+
+- make
+- Press 'Ctrl+a' and then 'd' to detach the screen session so you can quit ssh and return back later. Later when back in SSH, do 'screen -r' to re-attach to this session.
+- sudo make install
+- sudo ldconfig
+
+16) Shutdown. Backup!
+
+
+Python Pre-Reqs
+---------------
+
+1) Install linux setuptools:
+
+- wget https://bootstrap.pypa.io/ez_setup.py -O - | sudo python
+
+2) Install python pip:
+
+- sudo easy_install pip
+
+
+MAVLink and MAVProxy
+--------------------
+
+1) sudo apt-get install dos2unix python-wxgtk2.8 python-matplotlib gawk git ccache python-lxml python-pexpect python-scipy python-pyparsing
+2) sudo pip install MAVProxy
+3) sudo pip install PIL --allow-unverified PIL --allow-all-external
