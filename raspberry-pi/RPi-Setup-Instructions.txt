@@ -2,7 +2,7 @@ OS Install
 ----------
 
 1) Install firmware using MATLAB Simulink Support Package for Raspberry Pi.
-2) After successful installation, run raspi-config to do the following:-
+2) After successful installation, make sure you're not connected to network, run raspi-config to do the following:-
 
 - Set password to "pi" or whatever you like.
 - Set Hostname to whatever you like, I did "rpi2".
@@ -13,7 +13,14 @@ OS Install
 - In Advanced Options, make sure SPI and I2C are set to "Yes".
 - In Advanced Options, select Serial and disable serial login.
 
-3) After all above is configured, make sure you have internet connectivity on the Pi either via LAN or Wifi. Reboot to proceed.
+3) Disable MATLAB daemons:-
+
+- cd /etc/network
+- sudo mkdir MATLAB-if-up.d
+- sudo mv if-up.d/mailip MATLAB-if-up.d/
+- sudo mv if-up.d/MATLAB-daemon MATLAB-if-up.d/
+
+4) After all above is configured, make sure you have internet connectivity on the Pi either via LAN or Wifi. Reboot to proceed.
 
 
 VNC Server
@@ -238,9 +245,33 @@ Python Pre-Reqs
 - sudo easy_install pip
 
 
-MAVLink and MAVProxy
---------------------
+MAVLink, MAVProxy & DroneAPI
+----------------------------
 
 1) sudo apt-get install dos2unix python-wxgtk2.8 python-matplotlib gawk git ccache python-lxml python-pexpect python-scipy python-pyparsing
 2) sudo pip install MAVProxy
 3) sudo pip install PIL --allow-unverified PIL --allow-all-external
+4) Patch MAVProxy forcing it to work offline:-
+
+Look for "class SRTMDownloader():" in /usr/local/lib/python2.7/dist-packages/MAVProxy/modules/mavproxy_map/srtm.py and change:
+
+self.offline = offline
+
+To
+
+self.offline = 1
+
+
+5) From the project code raspberry-pi directory, copy droneapi-python into /home/pi/ and execute these commands:
+
+- cd /home/pi/droneapi-python
+- sudo python setup.py install
+
+
+XBee Python API
+---------------
+
+1) cd to /home/pi and run: git clone --recursive https://github.com/thom-nic/python-xbee.git
+2) cd python-xbee
+3) sudo python setup.py install
+
