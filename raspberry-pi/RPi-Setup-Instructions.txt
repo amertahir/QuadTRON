@@ -248,7 +248,7 @@ Python Pre-Reqs
 MAVLink, MAVProxy & DroneAPI
 ----------------------------
 
-1) sudo apt-get install dos2unix python-wxgtk2.8 python-matplotlib gawk git ccache python-lxml python-pexpect python-scipy python-pyparsing
+1) sudo apt-get install dos2unix python-wxgtk2.8 python-matplotlib gawk git ccache python-lxml python-pexpect python-scipy python-pyparsing python-pygame
 2) sudo pip install MAVProxy
 3) sudo pip install PIL --allow-unverified PIL --allow-all-external
 4) Patch MAVProxy forcing it to work offline:-
