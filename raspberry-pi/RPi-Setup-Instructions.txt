@@ -250,8 +250,27 @@ MAVLink, MAVProxy & DroneAPI
 
 1) sudo apt-get install dos2unix python-wxgtk2.8 python-matplotlib gawk git ccache python-lxml python-pexpect python-scipy python-pyparsing python-pygame
 2) sudo pip install MAVProxy
-3) sudo pip install PIL --allow-unverified PIL --allow-all-external
-4) Patch MAVProxy forcing it to work offline:-
+3) sudo pip install -I PIL --no-install --allow-unverified PIL --allow-all-external
+
+4) Open /tmp/pip_build_root/PIL/setup.py and add this line after line 214:
+
+        add_directory(library_dirs, "/usr/lib/arm-linux-gnueabihf")
+
+5) Save and close, then open file /tmp/pip_build_root/PIL/PIL/ImageFile.py, add this line after line 31:
+
+from io import UnsupportedOperation
+
+6) Then, change line 478 from:
+
+    except AttributeError:
+
+To
+
+    except (AttributeError, UnsupportedOperation) as e:
+
+7) sudo ln -s /usr/include/freetype2 /usr/include/freetype
+8) sudo pip install -I PIL --no-download
+9) Patch MAVProxy forcing it to work offline:-
 
 Look for "class SRTMDownloader():" in /usr/local/lib/python2.7/dist-packages/MAVProxy/modules/mavproxy_map/srtm.py and change:
 
@@ -262,7 +281,7 @@ To
 self.offline = 1
 
 
-5) From the project code raspberry-pi directory, copy droneapi-python into /home/pi/ and execute these commands:
+10) From the project code raspberry-pi directory, copy droneapi-python into /home/pi/ and execute these commands:
 
 - cd /home/pi/droneapi-python
 - sudo python setup.py install
